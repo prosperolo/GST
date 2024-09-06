@@ -2,4 +2,4 @@
 
 ---------
 
-## Code coming soon
+## Code coming on Tuesday, September 10 (next week)
