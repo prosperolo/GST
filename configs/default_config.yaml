@@ -1,0 +1,41 @@
+---
+defaults:
+  - wandb: defaults
+  - hydra: defaults
+  - _self_
+general:
+  device: 0
+  random_seed: 0
+data:
+  fov: 47.17998034148662
+  input_images: 1
+opt:
+  iterations: 9000001
+  base_lr: 0.000005
+  batch_size: 32
+  betas:
+    - 0.9
+    - 0.999
+  loss: l2
+  lambda_lpips: 0.01
+  start_lpips_after: 800001
+  pretrained_ckpt: null
+  step_lr_at: 800001
+  alpha_loss: true
+  alpha_loss_coefficient: 0.01
+  offset_penalty: true
+
+model:
+  opacity_scale: 1.0
+  opacity_bias: -2.0
+  scale_bias: 0.02
+  scale_scale: 0.003
+  xyz_scale: 0.1
+  xyz_bias: 0.0
+
+logging:
+  ckpt_iterations: 1000
+  val_log: 10000
+  loss_log: 10
+  loop_log: 1000
+  render_log: 500

@@ -1,0 +1,14 @@
+# @package _global_
+data:
+  znear: -1.0
+  zfar: 4.0
+  category: humans
+  dataset_type: humman
+  with_background: false
+  white_background: true
+  depth_rendering: false
+  ray_embedding: false
+  random_background_color: false 
+  training_resolution: 256
+  num_training_images: 4
+  cropped: false
