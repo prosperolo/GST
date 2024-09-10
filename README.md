@@ -18,6 +18,11 @@
     pip install -r requirements.txt
     ```
 
+## Data preparation
+For training on the [HuMMan](https://caizhongang.com/projects/HuMMan/recon.html) dataset 
+1. Download the dataset following the official instruction 
+2. Unzip the data and change the `HUMMAN_DATASET_ROOT` to the unzipped folder inside `scene/humman.py`
+
 
 ## Training
 ```
