@@ -9,13 +9,15 @@
     conda activate gst
     ```
 
-2. Install [4DHumans](https://github.com/shubham-goel/4D-Humans) following the official instructions. Download the SMPL model according to the repo README instructions, then run the `demo.py` script to download the pretrained models and store them under the correct path 
+2. Install Pytorch following the [official instructions](https://pytorch.org/). Python/Pytorch combination that was verified to work is: Python 3.10, Pytorch 2.4.1, CUDA 12.4 (Ubuntu 22.04)
 
-3. Install Gaussian splatting renderer [diff-gaussian-rasterization](https://github.com/ashawkey/diff-gaussian-rasterization)
+3. Install [4DHumans](https://github.com/shubham-goel/4D-Humans) following the official instructions. Download the SMPL model according to the repo README instructions, then run the `demo.py` script to download the pretrained models and store them under the correct path 
 
-4. Install [simple-knn](https://gitlab.inria.fr/bkerbl/simple-knn) 
+4. Install Gaussian splatting renderer [diff-gaussian-rasterization](https://github.com/ashawkey/diff-gaussian-rasterization)
 
-5. Install other requirements
+5. Install [simple-knn](https://gitlab.inria.fr/bkerbl/simple-knn) 
+
+6. Install other requirements
     ```
     pip install -r requirements.txt
     ```
