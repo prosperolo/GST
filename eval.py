@@ -45,22 +45,18 @@ def evaluate_dataset(model, dataloader, device, model_cfg):
     psnr_all_examples_novel = []
     ssim_all_examples_novel = []
     lpips_all_examples_novel = []
-    psnr_all_examples_sherf_novel = []
 
     psnr_all_examples_cond = []
     ssim_all_examples_cond = []
     lpips_all_examples_cond = []
-    psnr_all_examples_sherf_cond = []
 
     for d_idx, data in enumerate(tqdm.tqdm(dataloader)):
         psnr_all_renders_novel = []
         ssim_all_renders_novel = []
         lpips_all_renders_novel = []
-        psnr_all_renders_sherf_novel = []
         psnr_all_renders_cond = []
         ssim_all_renders_cond = []
         lpips_all_renders_cond = []
-        psnr_all_renders_sherf_cond = []
 
         data = {k: v.to(device) for k, v in data.items()}
 
@@ -128,12 +124,6 @@ def evaluate_dataset(model, dataloader, device, model_cfg):
             ssim_all_examples_novel.append(sum(ssim_all_renders_novel) / len(ssim_all_renders_novel))
             lpips_all_examples_novel.append(sum(lpips_all_renders_novel) / len(lpips_all_renders_novel))
 
-        if len(psnr_all_renders_sherf_cond) > 0:
-            psnr_all_examples_sherf_cond.append(sum(psnr_all_renders_sherf_cond)/len(psnr_all_renders_sherf_cond))
-        
-        if len(psnr_all_renders_sherf_novel) > 0:
-            psnr_all_examples_sherf_novel.append(sum(psnr_all_renders_sherf_novel)/len(psnr_all_renders_sherf_novel))
-
         with open("scores.txt", "a+") as f:
             f.write("{}_".format(d_idx) + example_id + \
                     " " + str(psnr_all_examples_novel[-1]) + \
@@ -149,16 +139,6 @@ def evaluate_dataset(model, dataloader, device, model_cfg):
               "PSNR_novel": sum(psnr_all_examples_novel) / len(psnr_all_examples_novel),
               "SSIM_novel": sum(ssim_all_examples_novel) / len(ssim_all_examples_novel),
               "LPIPS_novel": sum(lpips_all_examples_novel) / len(lpips_all_examples_novel)}
-
-    if len(psnr_all_examples_sherf_cond) > 0:
-        scores["PSNR_cond_sherf"] = sum(psnr_all_examples_sherf_cond)/len(psnr_all_examples_sherf_cond)
-    
-    if len(psnr_all_renders_sherf_novel) > 0:
-        scores["PSNR_novel_sherf"] = sum(psnr_all_renders_sherf_novel) / len(psnr_all_renders_sherf_novel)
-    
-    if len(abs_mpjpe) > 0:
-        abs_mpjpe = torch.cat(abs_mpjpe)
-        scores["ABS_MPJPE"] = (sum(abs_mpjpe) / len(abs_mpjpe)).item()
 
     return scores
 

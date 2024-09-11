@@ -5,5 +5,6 @@ lpips
 plyfile
 einops
 imageio
+moviepy
 wandb
 opencv-contrib-python
