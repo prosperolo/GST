@@ -13,6 +13,7 @@ from gaussian_renderer import render_predicted
 from scene.dataset_factory import get_dataset
 from utils.loss_utils import ssim as ssim_fn
 from scene.hmr2_extension import load_hmr_predictor
+import torchvision
 
 
 class Metricator():
@@ -27,11 +28,14 @@ class Metricator():
 
 
 @torch.no_grad()
-def evaluate_dataset(model, dataloader, device, model_cfg):
+def evaluate_dataset(model, dataloader, device, model_cfg, save_vis, out_folder="eval_out"):
     """
     Runs evaluation on the dataset passed in the dataloader. 
     Computes, prints and saves PSNR, SSIM, LPIPS.
     """
+
+    if save_vis > 0:
+        os.makedirs(out_folder, exist_ok=True)
 
     with open("scores.txt", "w+") as f:
         f.write("")
@@ -98,6 +102,8 @@ def evaluate_dataset(model, dataloader, device, model_cfg):
                                      model_cfg,
                                      focals_pixels=focals_pixels_render)["render"]
 
+            input_image = data["gt_images"][0, 1, ...]
+
             gt_images.append(data["gt_images"][0, r_idx, ...])
             rendered.append(image)
 
@@ -113,6 +119,20 @@ def evaluate_dataset(model, dataloader, device, model_cfg):
                     psnr_all_renders_novel.append(psnr)
                     ssim_all_renders_novel.append(ssim)
                     lpips_all_renders_novel.append(lpips)
+        
+        if d_idx < save_vis:
+            indices = torch.arange(len(gt_images)) #torch.randint(0, len(gt_images), (5,)).numpy().tolist()
+            gt_images = [gt_images[i].clamp_(0, 1).cpu() for i in indices]
+            rendered = [rendered[i].clamp_(0, 1).cpu() for i in indices]
+            gt_images = torch.cat(gt_images, axis=-1)
+            rendered = torch.cat(rendered, axis=-1)
+            c, h, w  = input_image.shape
+            pad = torch.ones((3, h//2, w), dtype=input_image.dtype)
+            pad = pad.cuda()
+            front = torch.cat((pad, input_image, pad), axis=-2).cpu()
+            to_save = torch.cat((rendered, gt_images), axis=-2)
+            to_save = torch.cat((front, to_save), axis=-1)
+            torchvision.utils.save_image(to_save, os.path.join(out_folder, '{}'.format(d_idx) + ".png"))
 
         if len(psnr_all_renders_cond) > 0:
             psnr_all_examples_cond.append(sum(psnr_all_renders_cond) / len(psnr_all_renders_cond))
@@ -143,19 +163,19 @@ def evaluate_dataset(model, dataloader, device, model_cfg):
     return scores
 
 @torch.no_grad()
-def main(experiment_path, device_idx, split='val'):
+def main(model_path, config_path, save_vis, split='val'):
     
     # set device and random seed
-    device = torch.device("cuda:{}".format(device_idx))
+    device = torch.device("cuda:{}".format(0))
     torch.cuda.set_device(device)
 
     # load cfg
-    training_cfg = OmegaConf.load(os.path.join(experiment_path, ".hydra", "config.yaml"))
+    training_cfg = OmegaConf.load(config_path)
 
     # load model
     model = load_hmr_predictor(training_cfg)
 
-    ckpt_loaded = torch.load(os.path.join(experiment_path, "model_latest.pth"), map_location=device)
+    ckpt_loaded = torch.load(model_path, map_location=device)
     model.load_state_dict(ckpt_loaded["model_state_dict"])
     model = model.to(device)
     model.eval()
@@ -166,15 +186,16 @@ def main(experiment_path, device_idx, split='val'):
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False,
                             persistent_workers=True, pin_memory=True, num_workers=10)
     
-    scores = evaluate_dataset(model, dataloader, device, training_cfg)
+    scores = evaluate_dataset(model, dataloader, device, training_cfg, save_vis)
     print(scores)
     return scores
 
 if __name__ == "__main__":
 
-    experiment_path = sys.argv[1]
+    model_path = sys.argv[1]
+    config_path = sys.argv[2]
+    save_vis = int(sys.argv[3])
     split = 'test' 
-    scores = main(experiment_path, 0, split=split)
-    with open(os.path.join(experiment_path, 
-                           "{}_scores.json".format(split)), "w+") as f:
+    scores = main(model_path, config_path, save_vis, split=split)
+    with open("{}_scores.json".format(split), "w+") as f:
         json.dump(scores, f, indent=4)

@@ -32,3 +32,12 @@ To train on the [HuMMan](https://caizhongang.com/projects/HuMMan/recon.html) dat
 ```
 python train_network.py +dataset=humman
 ```
+
+
+## Evaluation 
+Download the pretrained model and config from [Huggingface](https://huggingface.co/prosperolo/GST/tree/main). Then run 
+```
+python eval.py path_to_model.pth path_to_config.yaml num_of_images_to_save
+```
+The first `num_of_images_to_save` examples will be saved inside the `eval_out` folder and will look like the image below (input image on the left, rendering in the top row, ground truth image in the bottom row)
+<img src="./eval_example.png">
