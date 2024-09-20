@@ -150,7 +150,7 @@ class GaussianHMR2(HMR2):
         return output
 
 
-class GaussianHMRPredictor(nn.Module):
+class GaussianHMRPredictor(nn.Module, PyTorchModelHubMixin, repo_url="https://github.com/prosperolo/GST", license="bsd-3-clause"):
     def __init__(self, cfg, smpl_cfg):
         super().__init__()
         self.cfg = cfg
